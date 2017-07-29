@@ -40,6 +40,12 @@ var (
 )
 
 // Config struct is read from ~/.golog config file
+// The config file looks like this:
+//
+// {
+//    "UseShortMessages": true
+// }
+//
 type Config struct {
 	UseShortMessages bool
 }
