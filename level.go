@@ -1,5 +1,7 @@
 package golog
 
+// Carl's copy
+
 import (
 	"github.com/kataras/pio"
 )
