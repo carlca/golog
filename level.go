@@ -1,8 +1,11 @@
 package golog
 
-// Carl's copy
-
 import (
+	"encoding/json"
+	"os"
+	"os/user"
+	"path"
+
 	"github.com/kataras/pio"
 )
 
@@ -25,16 +28,43 @@ const (
 
 var (
 	// without colors
-	erroText = "[ERRO]"
-	warnText = "[WARN]"
-	infoText = "[INFO]"
-	dbugText = "[DBUG]"
+	erroText = choose("[ERRO]", "[ERROR]")
+	warnText = choose("[WARN]", "[WARNING]")
+	infoText = choose("[INFO]", "[INFORMATION]")
+	dbugText = choose("[DBUG]", "[DEBUG]")
 	// with colors
 	erro = pio.Red(erroText)
 	warn = pio.Purple(warnText)
 	info = pio.LightGreen(infoText)
 	dbug = pio.Yellow(dbugText)
 )
+
+// Config struct is read from ~/.golog config file
+type Config struct {
+	UseShortMessages bool
+}
+
+func choose(shortMsg, longMsg string) string {
+	usr, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+	configFile := path.Join(usr.HomeDir, ".golog")
+	file, err := os.Open(configFile)
+	if err != nil {
+		panic(err)
+	}
+	decoder := json.NewDecoder(file)
+	config := Config{}
+	err = decoder.Decode(&config)
+	if err != nil {
+		panic(err)
+	}
+	if config.UseShortMessages {
+		return shortMsg
+	}
+	return longMsg
+}
 
 // returns a [PREFIX] based on the "level" and "enableColor".
 func prefixFromLevel(level Level, enableColor bool) string {
